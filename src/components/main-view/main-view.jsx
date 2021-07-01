@@ -1,20 +1,26 @@
+import axios from 'axios';
 import React from 'react';
+import LoginView from '../login-view/login-view';
+import RegistrationView from '../registration-view/registration-view';
 import MovieView from '../movie-view/movie-view';
 import MovieCard from '../movie-card/movie-card';
+import './main-view.scss';
 
 export default class MainView extends React.Component {
 
     constructor() {
         super();
-
         this.state = {
-            movies: [
-                { _id: 1, Title: 'Inception', Description: 'desc1...', ImagePath: '...' },
-                { _id: 2, Title: 'The Shawshank Redemption', Description: 'desc2...', ImagePath: '...' },
-                { _id: 3, Title: 'Gladiator', Description: 'desc3...', ImagePath: '...' }
-            ],
-            selectedMovie: null
+            movies: [],
+            selectedMovie: null,
+            user: null
         }
+    }
+
+    onLoggedIn(user) {
+        this.setState({
+            user
+        })
     }
 
     setSelectedMovie(newSelectedMovie) {
@@ -24,9 +30,14 @@ export default class MainView extends React.Component {
     }
 
     render() {
-        const { movies, selectedMovie } = this.state;
+        const { movies, selectedMovie, user } = this.state;
 
-        if (movies.length === 0) return <div className="main-view">The list is empty!</div>;
+        if (!user) return (<>
+            <RegistrationView />
+            <LoginView onLoggedIn={user => this.onLoggedIn(user)} />
+        </>);
+
+        if (movies.length === 0) return <div className="main-view" />;
 
         return (
             <div className="main-view">
@@ -38,5 +49,17 @@ export default class MainView extends React.Component {
                 }
             </div>
         );
+    }
+
+    componentDidMount() {
+        axios.get('https://bugflixthefirst.herokuapp.com/movies')
+            .then(response => {
+                this.setState({
+                    movies: response.data
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            });
     }
 }

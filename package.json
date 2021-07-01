@@ -17,6 +17,8 @@
   "homepage": "https://github.com/benedictbelz/bugflix-client#readme",
   "description": "Bugflix - The well known movie database. One of the best, except a couple of bugs frome time to time.",
   "dependencies": {
+    "axios": "^0.21.1",
+    "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
