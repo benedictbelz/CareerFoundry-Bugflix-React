@@ -1,11 +1,19 @@
 {
   "name": "bugflix",
   "version": "1.0.0",
-  "description": "",
   "main": "src/index.html",
   "scripts": {
     "test": "test"
   },
   "author": "Benedict Belz",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benedictbelz/bugflix-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/benedictbelz/bugflix-client/issues"
+  },
+  "homepage": "https://github.com/benedictbelz/bugflix-client#readme",
+  "description": "This is the best movie database ever."
 }
