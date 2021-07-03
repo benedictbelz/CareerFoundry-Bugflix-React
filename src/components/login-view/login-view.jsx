@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Form, Button } from 'react-bootstrap';
 import './login-view.scss';
 
 export default function LoginView(props) {
@@ -12,17 +13,19 @@ export default function LoginView(props) {
     };
 
     return (
-        <form>
-            <label>
-                Username:
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
-            </label>
-            <label>
-                Password:
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            </label>
-            <button type="button" onClick={handleSubmit}>Submit</button>
-        </form>
+        <Form>
+            <Form.Group controlId="formUsername">
+                <Form.Label>Username:</Form.Label>
+                <Form.Control type="text" onChange={e => setUsername(e.target.value)} />
+            </Form.Group>
+            <Form.Group controlId="formPassword">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control type="password" onChange={e => setPassword(e.target.value)} />
+            </Form.Group>
+            <Button variant="dark" type="submit" onClick={handleSubmit}>
+                Submit
+            </Button>
+        </Form>
     );
 }
 

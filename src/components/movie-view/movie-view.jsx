@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 import './movie-view.scss';
 
 export default class MovieView extends React.Component {
@@ -31,7 +32,7 @@ export default class MovieView extends React.Component {
                     <span className="label">Featured: </span>
                     <span className="value">{movie.Featured?'Yes':'No'}</span>
                 </div>
-                <button onClick={() => onBackClick(null)}>Back</button>
+                <Button variant="dark" onClick={() => onBackClick(null)}>Back</Button>
             </div>
         );
     }

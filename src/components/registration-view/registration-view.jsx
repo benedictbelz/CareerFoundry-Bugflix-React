@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Form, Button } from 'react-bootstrap';
 import './registration-view.scss';
 
 export default function RegistrationView(props) {
@@ -9,28 +10,30 @@ export default function RegistrationView(props) {
     const [birthday, setBirthday] = useState('');
 
     const handleSubmit = () => {
-        
+
     };
 
     return (
-        <form>
-            <label>
-                Username:
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
-            </label>
-            <label>
-                Password:
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            </label>
-            <label>
-                E-Mail:
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-            </label>
-            <label>
-                Birthday:
-                <input type="birthday" value={birthday} onChange={e => setBirthday(e.target.value)} />
-            </label>
-            <button type="button" onClick={handleSubmit}>Submit</button>
-        </form>
+        <Form>
+            <Form.Group controlId="formUsername">
+                <Form.Label>Username:</Form.Label>
+                <Form.Control type="text" onChange={e => setUsername(e.target.value)} />
+            </Form.Group>
+            <Form.Group controlId="formPassword">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control type="password" onChange={e => setPassword(e.target.value)} />
+            </Form.Group>
+            <Form.Group controlId="formEmail">
+                <Form.Label>E-Mail:</Form.Label>
+                <Form.Control type="email" onChange={e => setEmail(e.target.value)} />
+            </Form.Group>
+            <Form.Group controlId="formBirthday">
+                <Form.Label>Birthday:</Form.Label>
+                <Form.Control type="date" onChange={e => setBirthday(e.target.value)} />
+            </Form.Group>
+            <Button variant="dark" type="submit" onClick={handleSubmit}>
+                Submit
+            </Button>
+        </Form>
     );
 }

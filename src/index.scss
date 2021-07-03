@@ -1,5 +1,22 @@
-$color: steelblue;
+$colorBasic: #A5AAA3;
+$colorBasicLight: lighten($colorBasic, 50%);
+$colorBasicDark: darken($colorBasic, 50%);
 
-.bugflix {
-    color: $color;
+$colorAccent: #FEA443;
+$colorAccentLight: lighten($colorAccent, 10%);
+$colorAccentDark: darken($colorAccent, 10%);
+
+$colorContrast: #812F33;
+$colorContrastLight: lighten($colorContrast, 50%);
+$colorContrastDark: darken($colorContrast, 50%);
+
+* {
+    font-size: 15px;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    color: $colorBasicDark;
+}
+
+html,
+body {
+    background-color: $colorBasic;
 }

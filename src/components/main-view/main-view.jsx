@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React from 'react';
+import { Row, Col } from 'react-bootstrap';
 import LoginView from '../login-view/login-view';
 import RegistrationView from '../registration-view/registration-view';
 import MovieView from '../movie-view/movie-view';
@@ -32,22 +33,25 @@ export default class MainView extends React.Component {
     render() {
         const { movies, selectedMovie, user } = this.state;
 
-        if (!user) return (<>
-            <RegistrationView />
-            <LoginView onLoggedIn={user => this.onLoggedIn(user)} />
-        </>);
+        //if (!user) return <RegistrationView />
+
+        if (!user) return <LoginView onLoggedIn={user => this.onLoggedIn(user)} />
 
         if (movies.length === 0) return <div className="main-view" />;
 
         return (
-            <div className="main-view">
+            <Row className="main-view justify-content-md-center">
                 {selectedMovie
-                    ? <MovieView movie={selectedMovie} onBackClick={movie => this.setSelectedMovie(movie)} />
-                    : movies.map(movie => (
-                        <MovieCard key={movie._id} movie={movie} onMovieClick={(movie) => this.setSelectedMovie(movie)} />
-                    ))
+                    ?   <Col md={8}>
+                            <MovieView movie={selectedMovie} onBackClick={movie => this.setSelectedMovie(movie)} />
+                        </Col>
+                    :   <Col md={3}>
+                            {movies.map(movie => (
+                                <MovieCard key={movie._id} movie={movie} onMovieClick={movie => this.setSelectedMovie(movie)} />
+                            ))}
+                        </Col>
                 }
-            </div>
+            </Row>
         );
     }
 
