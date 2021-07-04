@@ -1,0 +1,31 @@
+$colorBasic: #A5AAA3;
+$colorBasicLight: lighten($colorBasic, 50%);
+$colorBasicDark: darken($colorBasic, 50%);
+
+.header{
+    background-color: $colorBasicDark;
+    box-shadow: 0px 0px 20px 10px rgba(0,0,0,0.5);
+
+    .title {
+        display: flex;
+        align-items: center;
+
+        img {
+            height: 1.5rem;
+        }
+
+        span {
+            font-size: 1.5rem;
+            color: white;
+        }
+    }
+
+    a:hover{
+        text-decoration: none;
+    }
+
+    .button {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
