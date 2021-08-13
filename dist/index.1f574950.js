@@ -24509,7 +24509,6 @@ var _actions = require("../actions/actions");
 function filter(state = '', action) {
     switch(action.type){
         case _actions.SET_FILTER:
-            console.log('REDUCER SET_FILTER');
             return action.value;
         default:
             return state;
@@ -24518,7 +24517,6 @@ function filter(state = '', action) {
 function directors(state = [], action) {
     switch(action.type){
         case _actions.SET_DIRECTORS:
-            console.log('REDUCER SET_DIRECTORS');
             return action.value;
         default:
             return state;
@@ -24527,7 +24525,6 @@ function directors(state = [], action) {
 function genres(state = [], action) {
     switch(action.type){
         case _actions.SET_GENRES:
-            console.log('REDUCER SET_GENRES');
             return action.value;
         default:
             return state;
@@ -24536,7 +24533,6 @@ function genres(state = [], action) {
 function movies(state = [], action) {
     switch(action.type){
         case _actions.SET_MOVIES:
-            console.log('REDUCER SET_MOVIES');
             return action.value;
         default:
             return state;
@@ -24545,10 +24541,15 @@ function movies(state = [], action) {
 function user(state = [], action) {
     switch(action.type){
         case _actions.SET_USER:
-            console.log('REDUCER SET_USER');
             return action.value;
-        case _actions.UPDATE_USER:
-            console.log('REDUCER UPDATE_USER');
+        default:
+            return state;
+    }
+}
+function token(state = '', action) {
+    switch(action.type){
+        case _actions.SET_TOKEN:
+            console.log('REDUCER: ', action.value);
             return action.value;
         default:
             return state;
@@ -24559,7 +24560,8 @@ const bugflixReducer = _redux.combineReducers({
     genres,
     directors,
     movies,
-    user
+    user,
+    token
 });
 exports.default = bugflixReducer;
 
@@ -24576,7 +24578,7 @@ parcelHelpers.export(exports, "SET_MOVIES", ()=>SET_MOVIES
 );
 parcelHelpers.export(exports, "SET_USER", ()=>SET_USER
 );
-parcelHelpers.export(exports, "UPDATE_USER", ()=>UPDATE_USER
+parcelHelpers.export(exports, "SET_TOKEN", ()=>SET_TOKEN
 );
 parcelHelpers.export(exports, "setFilter", ()=>setFilter
 );
@@ -24588,53 +24590,48 @@ parcelHelpers.export(exports, "setMovies", ()=>setMovies
 );
 parcelHelpers.export(exports, "setUser", ()=>setUser
 );
-parcelHelpers.export(exports, "updateUser", ()=>updateUser
+parcelHelpers.export(exports, "setToken", ()=>setToken
 );
 const SET_FILTER = 'SET_FILTER';
 const SET_DIRECTORS = 'SET_DIRECTORS';
 const SET_GENRES = 'SET_GENRES';
 const SET_MOVIES = 'SET_MOVIES';
 const SET_USER = 'SET_USER';
-const UPDATE_USER = 'UPDATE_USER';
+const SET_TOKEN = 'SET_TOKEN';
 function setFilter(value) {
-    console.log('ACTION SET_FILTER');
     return {
         type: SET_FILTER,
         value
     };
 }
 function setDirectors(value) {
-    console.log('ACTION SET_DIRECTORS');
     return {
         type: SET_DIRECTORS,
         value
     };
 }
 function setGenres(value) {
-    console.log('ACTION SET_GENRES');
     return {
         type: SET_GENRES,
         value
     };
 }
 function setMovies(value) {
-    console.log('ACTION SET_MOVIES');
     return {
         type: SET_MOVIES,
         value
     };
 }
 function setUser(value) {
-    console.log('ACTION SET_USER');
     return {
         type: SET_USER,
         value
     };
 }
-function updateUser(value) {
-    console.log('ACTION UPDATE_USER');
+function setToken(value) {
+    console.log('ACTION: ', value);
     return {
-        type: UPDATE_USER,
+        type: SET_TOKEN,
         value
     };
 }
@@ -36867,31 +36864,27 @@ var _movieView = require("../movie-view/movie-view");
 var _movieCard = require("../movie-card/movie-card");
 var _directorView = require("../director-view/director-view");
 var _genreView = require("../genre-view/genre-view");
+var _movieList = require("../movie-list/movie-list");
 var _mainViewScss = require("./main-view.scss");
 class MainView extends _reactDefault.default.Component {
     constructor(props){
         super(props);
-        this.state = {
-            user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
-            token: localStorage.getItem('token') ? localStorage.getItem('token') : null
-        };
+        this.props.setUser(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null);
+        this.props.setToken(localStorage.getItem('token') ? localStorage.getItem('token') : null);
     }
     componentDidMount() {
-        if (this.state.token !== null) {
-            this.getDirectors();
-            this.getGenres();
-            this.getMovies();
+        const token = localStorage.getItem('token');
+        if (token !== null) {
+            this.getDirectors(token);
+            this.getGenres(token);
+            this.getMovies(token);
         }
     }
     onLoggedIn(authentification) {
-        const token = authentification.token;
         this.props.setUser(authentification.user);
-        this.setState({
-            user: authentification.user,
-            token
-        });
+        this.props.setToken(authentification.token);
         localStorage.setItem('user', JSON.stringify(authentification.user));
-        localStorage.setItem('token', token);
+        localStorage.setItem('token', authentification.token);
         this.getMovies();
         this.getGenres();
         this.getMovies();
@@ -36899,74 +36892,67 @@ class MainView extends _reactDefault.default.Component {
     onLoggedOut() {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-        this.setState({
-            user: null,
-            token: null
-        });
+        this.props.setUser(null);
+        this.props.setToken(null);
     }
     addFavorite(movie) {
-        _axiosDefault.default.post('https://bugflixthefirst.herokuapp.com/users/' + this.state.user.Username + '/favourites/' + movie, {
+        _axiosDefault.default.post('https://bugflixthefirst.herokuapp.com/users/' + this.props.user.Username + '/favourites/' + movie, {
         }, {
             headers: {
-                Authorization: `Bearer ${this.state.token}`
+                Authorization: `Bearer ${this.props.token}`
             }
         }).then((response)=>{
             console.log('Add Favorite: ' + movie);
-            this.setState({
-                user: response.data
-            });
+            this.props.setUser(response.data);
             localStorage.setItem('user', JSON.stringify(response.data));
         }).catch((error)=>console.log(error)
         );
     }
     removeFavorite(movie) {
-        _axiosDefault.default.delete('https://bugflixthefirst.herokuapp.com/users/' + this.state.user.Username + '/favourites/' + movie, {
+        _axiosDefault.default.delete('https://bugflixthefirst.herokuapp.com/users/' + this.props.user.Username + '/favourites/' + movie, {
             headers: {
-                Authorization: `Bearer ${this.state.token}`
+                Authorization: `Bearer ${this.props.token}`
             }
         }).then((response)=>{
             console.log('Remove Favorite: ' + movie);
-            this.setState({
-                user: response.data
-            });
+            this.props.setUser(response.data);
             localStorage.setItem('user', JSON.stringify(response.data));
         }).catch((error)=>console.log(error)
         );
     }
-    getDirectors() {
+    getDirectors(token) {
         _axiosDefault.default.get('https://bugflixthefirst.herokuapp.com/directors', {
             headers: {
-                Authorization: `Bearer ${this.state.token}`
+                Authorization: `Bearer ${token}`
             }
         }).then((response)=>this.props.setDirectors(response.data)
         ).catch((error)=>console.log(error)
         );
     }
-    getGenres() {
+    getGenres(token) {
         _axiosDefault.default.get('https://bugflixthefirst.herokuapp.com/genres', {
             headers: {
-                Authorization: `Bearer ${this.state.token}`
+                Authorization: `Bearer ${token}`
             }
         }).then((response)=>this.props.setGenres(response.data)
         ).catch((error)=>console.log(error)
         );
     }
-    getMovies() {
+    getMovies(token) {
         _axiosDefault.default.get('https://bugflixthefirst.herokuapp.com/movies', {
             headers: {
-                Authorization: `Bearer ${this.state.token}`
+                Authorization: `Bearer ${token}`
             }
         }).then((response)=>this.props.setMovies(response.data)
         ).catch((error)=>console.log(error)
         );
     }
     render() {
-        const { directors , genres , movies  } = this.props;
-        const { user , token  } = this.state;
+        const { directors , genres , movies , user  } = this.props;
         return(/*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.BrowserRouter, {
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 114
+                lineNumber: 113
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Row, {
@@ -36974,21 +36960,21 @@ class MainView extends _reactDefault.default.Component {
             className: "header p-3",
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 115
+                lineNumber: 114
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Link, {
             to: `/`,
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 116
+                lineNumber: 115
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Col, {
             className: "title p-0",
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 117
+                lineNumber: 116
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement("img", {
@@ -36996,27 +36982,27 @@ class MainView extends _reactDefault.default.Component {
             src: "http://www.pngall.com/wp-content/uploads/2016/03/Bug-PNG-2.png",
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 118
+                lineNumber: 117
             },
             __self: this
         }), /*#__PURE__*/ _reactDefault.default.createElement("span", {
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 119
+                lineNumber: 118
             },
             __self: this
         }, "Bugflix"))), user && /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Col, {
             className: "button",
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 123
+                lineNumber: 122
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Link, {
             to: `/profile`,
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 124
+                lineNumber: 123
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Button, {
@@ -37024,14 +37010,14 @@ class MainView extends _reactDefault.default.Component {
             variant: "dark",
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 125
+                lineNumber: 124
             },
             __self: this
         }, "Profile")), /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Link, {
             to: `/`,
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 127
+                lineNumber: 126
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Button, {
@@ -37040,7 +37026,7 @@ class MainView extends _reactDefault.default.Component {
             ,
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 128
+                lineNumber: 127
             },
             __self: this
         }, "Logout")))), /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Row, {
@@ -37048,7 +37034,7 @@ class MainView extends _reactDefault.default.Component {
             className: "main-view m-2 justify-content-md-left",
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 133
+                lineNumber: 132
             },
             __self: this
         }, /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Route, {
@@ -37062,24 +37048,13 @@ class MainView extends _reactDefault.default.Component {
                 // IF NO CONTENT RETURN
                 if (directors.length === 0 || genres.length === 0 || movies.length === 0) return;
                 // MAP ALL MOVIES
-                return movies.map((movie)=>{
-                    const favorite = user.Favorites.includes(movie._id);
-                    return(/*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Col, {
-                        className: "p-2",
-                        md: 3,
-                        key: movie._id
-                    }, /*#__PURE__*/ _reactDefault.default.createElement(_movieCard.MovieCard, {
-                        movie: movie,
-                        favorite: favorite,
-                        addFavorite: (movie1)=>this.addFavorite(movie1)
-                        ,
-                        removeFavorite: (movie1)=>this.removeFavorite(movie1)
-                    })));
-                });
+                return(/*#__PURE__*/ _reactDefault.default.createElement(_movieList.MovieList, {
+                    movies: movies
+                }));
             },
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 134
+                lineNumber: 133
             },
             __self: this
         }), /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Route, {
@@ -37099,7 +37074,7 @@ class MainView extends _reactDefault.default.Component {
             },
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 161
+                lineNumber: 148
             },
             __self: this
         }), /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Route, {
@@ -37129,7 +37104,7 @@ class MainView extends _reactDefault.default.Component {
             },
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 174
+                lineNumber: 161
             },
             __self: this
         }), /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Route, {
@@ -37165,7 +37140,7 @@ class MainView extends _reactDefault.default.Component {
             },
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 193
+                lineNumber: 180
             },
             __self: this
         }), /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Route, {
@@ -37192,7 +37167,7 @@ class MainView extends _reactDefault.default.Component {
             },
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 220
+                lineNumber: 207
             },
             __self: this
         }), /*#__PURE__*/ _reactDefault.default.createElement(_reactRouterDom.Route, {
@@ -37218,25 +37193,27 @@ class MainView extends _reactDefault.default.Component {
             },
             __source: {
                 fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/main-view/main-view.jsx",
-                lineNumber: 241
+                lineNumber: 228
             },
             __self: this
         }))));
     }
 }
-let mapStateToProps = (state)=>{
+const mapStateToProps = (state)=>{
     return {
         directors: state.directors,
         genres: state.genres,
         movies: state.movies,
-        user: state.user
+        user: state.user,
+        token: state.token
     };
 };
 exports.default = _reactRedux.connect(mapStateToProps, {
     setDirectors: _actions.setDirectors,
     setGenres: _actions.setGenres,
     setMovies: _actions.setMovies,
-    setUser: _actions.setUser
+    setUser: _actions.setUser,
+    setToken: _actions.setToken
 })(MainView);
 
   helpers.postlude(module);
@@ -37244,7 +37221,7 @@ exports.default = _reactRedux.connect(mapStateToProps, {
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"axios":"7rA65","react":"3b2NM","react-redux":"7GDa4","../../actions/actions":"5S6cN","react-bootstrap":"4n7hB","react-router-dom":"1PMSK","../login-view/login-view":"4ZoEv","../profile-view/profile-view":"60Sl5","../registration-view/registration-view":"66svH","../movie-view/movie-view":"6M1mj","../movie-card/movie-card":"7K7QK","../director-view/director-view":"3q18I","../genre-view/genre-view":"4EZAr","./main-view.scss":"4wHUw","@parcel/transformer-js/src/esmodule-helpers.js":"3hoTu","../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"2FZ5L"}],"7rA65":[function(require,module,exports) {
+},{"axios":"7rA65","react":"3b2NM","react-redux":"7GDa4","../../actions/actions":"5S6cN","react-bootstrap":"4n7hB","react-router-dom":"1PMSK","../login-view/login-view":"4ZoEv","../profile-view/profile-view":"60Sl5","../registration-view/registration-view":"66svH","../movie-view/movie-view":"6M1mj","../movie-card/movie-card":"7K7QK","../director-view/director-view":"3q18I","../genre-view/genre-view":"4EZAr","./main-view.scss":"4wHUw","@parcel/transformer-js/src/esmodule-helpers.js":"3hoTu","../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"2FZ5L","../movie-list/movie-list":"4QszA"}],"7rA65":[function(require,module,exports) {
 module.exports = require('./lib/axios');
 
 },{"./lib/axios":"4qfhW"}],"4qfhW":[function(require,module,exports) {
@@ -42392,6 +42369,127 @@ GenreView.propTypes = {
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"prop-types":"4dfy5","react":"3b2NM","react-bootstrap":"4n7hB","../movie-card/movie-card":"7K7QK","./genre-view.scss":"4fN0C","@parcel/transformer-js/src/esmodule-helpers.js":"3hoTu","../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"2FZ5L"}],"4fN0C":[function() {},{}],"4wHUw":[function() {},{}],"Gte5g":[function() {},{}]},["1j6wU","2BpC0","1cWVQ"], "1cWVQ", "parcelRequire45c8")
+},{"prop-types":"4dfy5","react":"3b2NM","react-bootstrap":"4n7hB","../movie-card/movie-card":"7K7QK","./genre-view.scss":"4fN0C","@parcel/transformer-js/src/esmodule-helpers.js":"3hoTu","../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"2FZ5L"}],"4fN0C":[function() {},{}],"4wHUw":[function() {},{}],"4QszA":[function(require,module,exports) {
+var helpers = require("../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+helpers.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "MovieList", ()=>MovieList
+);
+var _react = require("react");
+var _reactDefault = parcelHelpers.interopDefault(_react);
+var _reactRedux = require("react-redux");
+var _reactBootstrap = require("react-bootstrap");
+var _visibilityFilter = require("../visibility-filter/visibility-filter");
+var _visibilityFilterDefault = parcelHelpers.interopDefault(_visibilityFilter);
+var _movieCard = require("../movie-card/movie-card");
+function MovieList(props) {
+    const { movies , filter , user  } = props;
+    console.log(props);
+    const filteredMovies = movies;
+    if (filter !== "") filteredMovies = movies.filter((movie)=>movie.Title.toLowerCase().includes(filter.toLowerCase())
+    );
+    if (!movies) return;
+    return(/*#__PURE__*/ _reactDefault.default.createElement(_reactDefault.default.Fragment, null, /*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Col, {
+        md: 12,
+        style: {
+            margin: "1em"
+        },
+        __source: {
+            fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/movie-list/movie-list.jsx",
+            lineNumber: 26
+        },
+        __self: this
+    }, /*#__PURE__*/ _reactDefault.default.createElement(_visibilityFilterDefault.default, {
+        filter: filter,
+        __source: {
+            fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/movie-list/movie-list.jsx",
+            lineNumber: 27
+        },
+        __self: this
+    })), filteredMovies.map((movie)=>/*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Col, {
+            className: "p-2",
+            md: 3,
+            key: movie._id,
+            __source: {
+                fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/movie-list/movie-list.jsx",
+                lineNumber: 30
+            },
+            __self: this
+        }, /*#__PURE__*/ _reactDefault.default.createElement(_movieCard.MovieCard, {
+            favorite: user.Favorites.includes(movie._id),
+            movie: movie,
+            addFavorite: (movie1)=>this.addFavorite(movie1)
+            ,
+            removeFavorite: (movie1)=>this.removeFavorite(movie1)
+            ,
+            __source: {
+                fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/movie-list/movie-list.jsx",
+                lineNumber: 31
+            },
+            __self: this
+        }))
+    )));
+}
+_c = MovieList;
+const mapStateToProps = (state)=>{
+    return {
+        filter: state.filter,
+        user: state.filter
+    };
+};
+exports.default = _reactRedux.connect(mapStateToProps)(MovieList);
+var _c;
+$RefreshReg$(_c, "MovieList");
+
+  helpers.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react":"3b2NM","react-bootstrap":"4n7hB","react-redux":"7GDa4","../movie-card/movie-card":"7K7QK","@parcel/transformer-js/src/esmodule-helpers.js":"3hoTu","../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"2FZ5L","../visibility-filter/visibility-filter":"2Ixck"}],"2Ixck":[function(require,module,exports) {
+var helpers = require("../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+helpers.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _react = require("react");
+var _reactDefault = parcelHelpers.interopDefault(_react);
+var _reactRedux = require("react-redux");
+var _reactBootstrap = require("react-bootstrap");
+var _actions = require("../../actions/actions");
+function VisibilityFilter(props) {
+    return(/*#__PURE__*/ _reactDefault.default.createElement(_reactBootstrap.Form.Control, {
+        onChange: (e)=>props.setFilter(e.target.value)
+        ,
+        value: props.filter,
+        placeholder: "filter movies",
+        __source: {
+            fileName: "/Users/Beni/Documents/Studium/CareerFoundy/Aufgaben/4.08 - React Redux/bugflix-client/src/components/visibility-filter/visibility-filter.jsx",
+            lineNumber: 8
+        },
+        __self: this
+    }));
+}
+_c = VisibilityFilter;
+exports.default = _reactRedux.connect(null, {
+    setFilter: _actions.setFilter
+})(VisibilityFilter);
+var _c;
+$RefreshReg$(_c, "VisibilityFilter");
+
+  helpers.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react":"3b2NM","react-redux":"7GDa4","react-bootstrap":"4n7hB","../../actions/actions":"5S6cN","@parcel/transformer-js/src/esmodule-helpers.js":"3hoTu","../../../../../../../../../.nvm/versions/node/v14.16.1/lib/node_modules/parcel/node_modules/@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"2FZ5L"}],"Gte5g":[function() {},{}]},["1j6wU","2BpC0","1cWVQ"], "1cWVQ", "parcelRequire45c8")
 
 //# sourceMappingURL=index.1f574950.js.map
