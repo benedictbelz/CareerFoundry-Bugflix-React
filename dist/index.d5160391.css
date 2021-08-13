@@ -1,0 +1,111 @@
+* {
+  font-size: 15px;
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  color: #262925;
+}
+
+html,
+body {
+  background-color: #A5AAA3;
+}
+
+.favorite {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.favorite svg {
+  background-color: white;
+}
+.favorite svg path {
+  fill: #cccccc;
+}
+.favorite:hover path {
+  fill: #aaaaaa;
+}
+.favorite.active svg {
+  background-color: #ffd900;
+}
+.favorite.active svg path {
+  fill: white;
+}
+.movie-card {
+  position: relative;
+  border-radius: 1rem;
+}
+.movie-card .card-img-top {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 1rem;
+}
+@media (min-width: 768px) {
+  .movie-card .card-img-top {
+    height: 35vw;
+  }
+}
+.movie-card .card-body {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+.movie-card .card-body .card-title {
+  font-weight: bold;
+}
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.movie-poster {
+  position: relative;
+  display: inline-block;
+}
+.movie-poster img {
+  border-radius: 1rem;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .movie-poster img {
+    width: auto;
+    max-height: 500px;
+  }
+}
+
+.movie-title span {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.label {
+  font-weight: bold;
+}
+
+
+.header {
+  background-color: #262925;
+  box-shadow: 0px 0px 20px 10px rgba(0, 0, 0, 0.5);
+}
+.header .title {
+  display: flex;
+  align-items: center;
+}
+.header .title img {
+  height: 1.5rem;
+}
+.header .title span {
+  font-size: 1.5rem;
+  color: white;
+}
+.header a:hover {
+  text-decoration: none;
+}
+.header .button {
+  display: flex;
+  justify-content: flex-end;
+}
+/*# sourceMappingURL=index.d5160391.css.map */

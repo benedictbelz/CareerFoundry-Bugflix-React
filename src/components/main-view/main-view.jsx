@@ -1,5 +1,9 @@
 import axios from 'axios';
 import React from 'react';
+
+import { connect } from 'react-redux';
+import { setDirectors, setGenres, setMovies, setUser } from '../../actions/actions';
+
 import { Row, Col, Button } from 'react-bootstrap';
 import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 import { LoginView } from '../login-view/login-view';
@@ -9,16 +13,14 @@ import { MovieView } from '../movie-view/movie-view';
 import { MovieCard } from '../movie-card/movie-card';
 import { DirectorView } from '../director-view/director-view';
 import { GenreView } from '../genre-view/genre-view';
+
 import './main-view.scss';
 
-export class MainView extends React.Component {
+class MainView extends React.Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            directors: [],
-            genres: [],
-            movies: [],
             user: localStorage.getItem('user')?JSON.parse(localStorage.getItem('user')):null,
             token: localStorage.getItem('token')?localStorage.getItem('token'):null
         }
@@ -34,6 +36,7 @@ export class MainView extends React.Component {
 
     onLoggedIn(authentification) {
         const token = authentification.token;
+        this.props.setUser(authentification.user)
         this.setState({ user: authentification.user, token });
         localStorage.setItem('user', JSON.stringify(authentification.user));
         localStorage.setItem('token', token);
@@ -83,7 +86,7 @@ export class MainView extends React.Component {
         axios.get('https://bugflixthefirst.herokuapp.com/directors', {
             headers: { Authorization: `Bearer ${this.state.token}` }
         })
-            .then(response => this.setState({ directors: response.data }))
+            .then(response => this.props.setDirectors(response.data))
             .catch(error => console.log(error));
     }
 
@@ -91,7 +94,7 @@ export class MainView extends React.Component {
         axios.get('https://bugflixthefirst.herokuapp.com/genres', {
             headers: { Authorization: `Bearer ${this.state.token}` }
         })
-            .then(response => this.setState({ genres: response.data }))
+            .then(response => this.props.setGenres(response.data))
             .catch(error => console.log(error));
     }
 
@@ -99,12 +102,13 @@ export class MainView extends React.Component {
         axios.get('https://bugflixthefirst.herokuapp.com/movies', {
             headers: { Authorization: `Bearer ${this.state.token}` }
         })
-            .then(response => this.setState({ movies: response.data }))
+            .then(response => this.props.setMovies(response.data))
             .catch(error => console.log(error));
     }
 
     render() {
-        const { directors, genres, movies, user, token } = this.state;
+        const { directors, genres, movies } = this.props;
+        const { user, token } = this.state;
     
         return (
             <Router>
@@ -260,3 +264,14 @@ export class MainView extends React.Component {
       }
 
 }
+
+let mapStateToProps = state => {
+    return { 
+        directors: state.directors,
+        genres: state.genres,
+        movies: state.movies,
+        user: state.user
+    }
+}
+
+export default connect(mapStateToProps, { setDirectors, setGenres, setMovies, setUser } )(MainView);
