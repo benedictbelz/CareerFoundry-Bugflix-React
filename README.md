@@ -21,4 +21,4 @@ Using React, build the client-side for an movie application based on its existin
 
 ## Installation
 
-Download the folder, install the packages via 'npm install' and run the script 'npm start'. Once bundled up, it will serve the file on port 1234.
+Download the folder, install the packages via `npm install` and run the script `npm start`. Once bundled up, it will serve the file on port 1234.
